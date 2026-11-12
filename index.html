@@ -680,11 +680,11 @@ function renderGo(){
   HINT.hidden=ok;if(ok)HINT.classList.remove('warn');
 }
 /* 12.11 simple1211 (владелец): регион «Россия» без ссылки Робокассы → вместо галочек и кнопки заглушка #rusoon с Telegram (текст с тарифом) */
-var RUSOON=$('#rusoon'),TGMSG="Хочу курс {plan}, оплата в рублях";
+var RUSOON=$('#rusoon'),TGMSG="Хочу купить курс «{plan}», оплата в рублях. Заявка с сайта chagacartoons.ru{src}";
 function ruSoon(){
   if(!RUSOON)return false;var on=S.reg==='ru'&&!PAY[coKey('ru')];
   if(on){var sel=$('#checkout .reg[data-r="ru"]');if(sel)sel.after(RUSOON);RUSOON.hidden=false;CONS.hidden=true;
-    var a=$('#rusoonTg'),nm=$('#coName').textContent||'';a.href=DM+'?text='+encodeURIComponent(TGMSG.replace('{plan}',nm))}
+    var a=$('#rusoonTg'),nm=$('#coName').textContent||'';var cs=window.CC_SRC||{},src=(cs.utm_source?' · '+cs.utm_source+(cs.utm_campaign?'/'+cs.utm_campaign:''):'');a.href=DM+'?text='+encodeURIComponent(TGMSG.replace('{plan}',nm).replace('{src}',src))}
   else RUSOON.hidden=true;
   return on;
 }
