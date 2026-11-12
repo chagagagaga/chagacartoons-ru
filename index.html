@@ -579,7 +579,17 @@ body:not(.bar-on) .chat{bottom:calc(16px + env(safe-area-inset-bottom))}
   /* 12.11 legal1211: EN (.com) ничего не пишет в браузер (ePrivacy 5(3), без cookie-баннера) — метки только из URL, в памяти. RU — как было. */
   if(ST){try{if(Object.keys(s).length)sessionStorage.setItem(K,JSON.stringify(s));else s=JSON.parse(sessionStorage.getItem(K)||'{}')}catch(e){}}
   window.CC_SRC=s;
-  window.ccTrack=function(name,data){try{if(window.umami)umami.track(name,Object.assign({},data||{},{src:(s.utm_source||'direct')+'/'+(s.utm_medium||'-'),camp:s.utm_campaign||''}))}catch(e){}};
+  /* 12.11 siteana1211: свой обезличенный счётчик chaga-stats (Cloudflare): sendBeacon без cookies и без записи в браузер; только
+     страница, метки, домен-источник, тариф/регион/валюта. Повтор того же события на этой странице не шлётся (кроме pageview). */
+  var SB='https://chaga-stats.chagagagaga.workers.dev/e',SENT={},RH='';try{var rh=document.referrer?new URL(document.referrer).hostname:'';if(rh&&rh!==location.hostname&&!/(^|\.)chagacartoons\.(com|ru)$/.test(rh))RH=rh}catch(e){}
+  window.ccBeacon=function(n,d){try{d=d||{};var k=d.plan||d.title||d.tab||(n==='currency'?d.cur:'')||'',key=n+'|'+k+'|'+(d.region||'');
+    if(n!=='pageview'){if(SENT[key])return;SENT[key]=1}
+    var b={n:n,p:location.pathname,s:s.utm_source||'',m:s.utm_medium||'',c:s.utm_campaign||'',k:String(k).slice(0,48),g:d.region||'',u:d.cur||''};
+    if(n==='pageview'){b.r=RH;b.v=(RH||q.get('utm_source')||!document.referrer)?1:0}
+    var j=JSON.stringify(b);if(navigator.sendBeacon&&navigator.sendBeacon(SB,new Blob([j],{type:'text/plain'})))return;
+    fetch(SB,{method:'POST',body:j,keepalive:true,mode:'no-cors',credentials:'omit',headers:{'content-type':'text/plain'}}).catch(function(){})}catch(e){}};
+  window.ccTrack=function(name,data){try{if(window.umami)umami.track(name,Object.assign({},data||{},{src:(s.utm_source||'direct')+'/'+(s.utm_medium||'-'),camp:s.utm_campaign||''}))}catch(e){}ccBeacon(name,data)};
+  ccBeacon('pageview',{});
   /* 12.11 lang1211: к ссылке Polar — reference_id=ru-site|en-site (Polar кладёт его в метаданные checkout → воркер выбирает язык письма
      и архивов, запасной путь к metadata.lang ссылки). UTM как были. */
   window.ccPayUrl=function(u){if(!u)return u;try{var x=new URL(u);Object.keys(s).forEach(function(k){x.searchParams.set(k,s[k])});
